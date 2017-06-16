@@ -18,6 +18,7 @@ import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
 
 import java.io.*;
+import java.net.InetAddress;
 import java.sql.Time;
 import java.text.DateFormat;
 import java.text.ParseException;
@@ -64,6 +65,8 @@ public class QuickStart {
         try {
             HTTP_TRANSPORT = GoogleNetHttpTransport.newTrustedTransport();
             DATA_STORE_FACTORY = new FileDataStoreFactory(DATA_STORE_DIR);
+            InetAddress IP= InetAddress.getLocalHost();
+            System.out.println("IP of my system is := "+IP.getHostAddress());
         } catch (Throwable t) {
             t.printStackTrace();
             System.exit(1);
