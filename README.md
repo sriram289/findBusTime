@@ -11,7 +11,7 @@
 8. Move this file to resources and replace the existing file.
 
 ## Changes to be done to read from correct team calendar
-In [Quickstart.java](../src/main/java/QuickStart.java) search for "calendarListEntry.getSummary()" and give the name of the team calendar from which events has to be read.
+In [Quickstart.java](src/main/java/QuickStart.java) search for "calendarListEntry.getSummary()" and give the name of the team calendar from which events has to be read.
 
 ## Configuring cron job in your local
 In your local give the following command 0 10 * * 1-5 <replace with the path to current folder>/script.sh
