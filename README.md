@@ -17,4 +17,12 @@ In [Quickstart.java](src/main/java/QuickStart.java) search for "calendarListEntr
 In your local give the following command 0 10 * * 1-5 <replace with the path to current folder>/script.sh
 The above configuration will run the job every workday (Monday to Friday) at 10 AM
 
+
+## Configuring slackbot for incoming webhooks
+currently the slackbot will post the message to the channel configured in the incoming webhooks to change the channel do the following
+1. Go to [slack integrations page](https://twu2017trainers.slack.com/apps/manage/custom-integrations)
+2. Select Incoming Webhooks
+3. Edit Webhook named harsha's life-save :D
+4. In Integration Settings -> Post to Channel select the channel to which the bot should post to.
+
 **Note: When running for the first time the program will prompt to give calendar permissions you will need to hit the url in the console in your browser and give calendar permissions.**
