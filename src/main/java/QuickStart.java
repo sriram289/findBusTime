@@ -157,17 +157,16 @@ public class QuickStart {
         String endTimeInString = end.getDateTime().toString();
         String actualEndTime = endTimeInString.substring(endTimeInString.indexOf('T') + 1, endTimeInString.indexOf('.'));
 
-        DateFormat formatter = new SimpleDateFormat("hh:mm:ss");
+        DateFormat formatter = new SimpleDateFormat("hh:mm");
         Date date = formatter.parse(actualEndTime);
         long time = date.getTime();
         Date baseMessage = new Time(new Date(time).getTime());
         Date option1 = new Time(new Date((10 * 60000) + time).getTime());
         Date option2 = new Time(new Date((15 * 60000) + time).getTime());
 
-
-        makeTheRequest("{\"text\":\"@here Day ends at " + baseMessage + " timings for bus today \"}");
-        makeTheRequest("{\"text\":\"" + option1 + "\"}");
-        makeTheRequest("{\"text\":\"" + option2 + "\"}");
+        makeTheRequest("{\"text\":\"@here Day ends at " + formatter.format(baseMessage) + " timings for bus today \"}");
+        makeTheRequest("{\"text\":\"" + formatter.format(option1) + "\"}");
+        makeTheRequest("{\"text\":\"" + formatter.format(option2) + "\"}");
 
     }
 
