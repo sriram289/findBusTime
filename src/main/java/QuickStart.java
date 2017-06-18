@@ -140,7 +140,7 @@ public class QuickStart {
         Date tenMinutesFromDayEnd = new Time(new Date((10 * 60000) + time).getTime());
         Date fifteenMinutesFromDayEnd = new Time(new Date((15 * 60000) + time).getTime());
 
-        makeTheRequest("{\"text\":\"@here Day ends at " + formatter.format(dayEndsAt) + " timings for bus today \"}");
+        makeTheRequest("{\"text\":\"@here :sun_with_face::end:@ " + formatter.format(dayEndsAt) + " :timer_clock::bus: \"}");
         makeTheRequest("{\"text\":\"" + formatter.format(tenMinutesFromDayEnd) + "\"}");
         makeTheRequest("{\"text\":\"" + formatter.format(fifteenMinutesFromDayEnd) + "\"}");
 
