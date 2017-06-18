@@ -9,7 +9,8 @@ import com.google.api.client.json.JsonFactory;
 import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.client.util.DateTime;
 import com.google.api.client.util.store.FileDataStoreFactory;
-import com.google.api.services.calendar.CalendarScopes;
+import com.google.api.services.calendar.*;
+import com.google.api.services.calendar.Calendar;
 import com.google.api.services.calendar.model.*;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
@@ -18,7 +19,6 @@ import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
 
 import java.io.*;
-import java.net.InetAddress;
 import java.sql.Time;
 import java.text.DateFormat;
 import java.text.ParseException;
@@ -65,8 +65,6 @@ public class QuickStart {
         try {
             HTTP_TRANSPORT = GoogleNetHttpTransport.newTrustedTransport();
             DATA_STORE_FACTORY = new FileDataStoreFactory(DATA_STORE_DIR);
-            InetAddress IP= InetAddress.getLocalHost();
-            System.out.println("IP of my system is := "+IP.getHostAddress());
         } catch (Throwable t) {
             t.printStackTrace();
             System.exit(1);
@@ -116,30 +114,39 @@ public class QuickStart {
     }
 
     public static void main(String[] args) throws IOException, ParseException {
-        EventDateTime end = new EventDateTime();
-        com.google.api.services.calendar.Calendar service = getCalendarService();
+        EventDateTime endTimeOfLastEvent;
+        Calendar service = getCalendarService();
 
         DateFormat justDay = new SimpleDateFormat("yyyyMMdd");
         Date thisMorningMidnight = justDay.parse(justDay.format(new Date()));
-        Date tomorrow = new Date(thisMorningMidnight.getTime() + 24 * 60 * 60 * 1000);
+        Date tomorrowMidnight = new Date(thisMorningMidnight.getTime() + 24 * 60 * 60 * 1000);
 
 
-        String pageToken = null;
-        String calendarId = null;
-        do {
-            CalendarList calendarList = service.calendarList().list().setPageToken(pageToken).execute();
-            List<CalendarListEntry> items = calendarList.getItems();
+        String calendarId = getCalendarIdOfTheTeamCalendar(service);
 
-            for (CalendarListEntry calendarListEntry : items) {
-                if (calendarListEntry.getSummary().contains("Dry run calendar")) {
-                    calendarId = calendarListEntry.getId();
-                }
+        List<Event> items = getListOfEventsHappeningToday(calendarId,
+                service,
+                new DateTime(thisMorningMidnight),
+                new DateTime(tomorrowMidnight));
 
-            }
-            pageToken = calendarList.getNextPageToken();
-        } while (pageToken != null);
+        System.out.println("Upcoming events");
 
-        DateTime minTime = new DateTime(thisMorningMidnight), maxTime = new DateTime(tomorrow);
+        endTimeOfLastEvent = items.get(items.size() - 1).getEnd();
+
+        DateFormat formatter = new SimpleDateFormat("hh:mm a");
+        Date date = new Date(endTimeOfLastEvent.getDateTime().getValue());
+        long time = date.getTime();
+        Date dayEndsAt = new Time(new Date(time).getTime());
+        Date tenMinutesFromDayEnd = new Time(new Date((10 * 60000) + time).getTime());
+        Date fifteenMinutesFromDayEnd = new Time(new Date((15 * 60000) + time).getTime());
+
+        makeTheRequest("{\"text\":\"@here Day ends at " + formatter.format(dayEndsAt) + " timings for bus today \"}");
+        makeTheRequest("{\"text\":\"" + formatter.format(tenMinutesFromDayEnd) + "\"}");
+        makeTheRequest("{\"text\":\"" + formatter.format(fifteenMinutesFromDayEnd) + "\"}");
+
+    }
+
+    private static List<Event> getListOfEventsHappeningToday(String calendarId, Calendar service, DateTime minTime, DateTime maxTime) throws IOException {
         Events events = service.events().list("primary")
                 .setCalendarId(calendarId)
                 .setTimeMin(minTime)
@@ -147,27 +154,28 @@ public class QuickStart {
                 .setOrderBy("startTime")
                 .setSingleEvents(true)
                 .execute();
-        List<Event> items = events.getItems();
+        return events.getItems();
+    }
 
-        System.out.println("Upcoming events");
-        for (Event event : items) {
-            end = event.getEnd();
-        }
+    private static String getCalendarIdOfTheTeamCalendar(Calendar service) throws IOException {
+        String calendarId = null;
+        String pageToken = null;
+        do {
+            CalendarList calendarList = service
+                    .calendarList()
+                    .list()
+                    .setPageToken(pageToken)
+                    .execute();
+            List<CalendarListEntry> items = calendarList.getItems();
 
-        String endTimeInString = end.getDateTime().toString();
-        String actualEndTime = endTimeInString.substring(endTimeInString.indexOf('T') + 1, endTimeInString.indexOf('.'));
-
-        DateFormat formatter = new SimpleDateFormat("hh:mm");
-        Date date = formatter.parse(actualEndTime);
-        long time = date.getTime();
-        Date baseMessage = new Time(new Date(time).getTime());
-        Date option1 = new Time(new Date((10 * 60000) + time).getTime());
-        Date option2 = new Time(new Date((15 * 60000) + time).getTime());
-
-        makeTheRequest("{\"text\":\"@here Day ends at " + formatter.format(baseMessage) + " timings for bus today \"}");
-        makeTheRequest("{\"text\":\"" + formatter.format(option1) + "\"}");
-        makeTheRequest("{\"text\":\"" + formatter.format(option2) + "\"}");
-
+            for (CalendarListEntry calendarListEntry : items) {
+                if (calendarListEntry.getSummary().contains("Dry run calendar")) {
+                    calendarId = calendarListEntry.getId();
+                }
+            }
+            pageToken = calendarList.getNextPageToken();
+        } while (pageToken != null);
+        return calendarId;
     }
 
     private static void makeTheRequest(String json) {
