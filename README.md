@@ -14,7 +14,7 @@
 In [Quickstart.java](src/main/java/QuickStart.java) search for "calendarListEntry.getSummary()" and give the name of the team calendar from which events has to be read.
 
 ## Configuring cron job in your local
-In your local give the following command 0 10 * * 1-5 <replace with the path to current folder>/script.sh
+In your local give the following command 0 10 * * 1-5 <replace with the path to current folder>/execute.sh
 The above configuration will run the job every workday (Monday to Friday) at 10 AM
 
 
